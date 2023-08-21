@@ -1,0 +1,102 @@
+from tkinter import *
+from tkinter.font import BOLD
+from pyamaze import maze,agent,COLOR,textLabel
+from functools import partial
+from SearchingAlgorithms import *
+from timeit import *
+
+rows = 15
+cols = 15
+#window
+tkWindow = Tk()  
+tkWindow.configure(bg='beige')
+tkWindow.geometry('750x300')  
+tkWindow.title('Maze Game')
+
+def startGame():
+  tkWindow.destroy()
+  m = maze(rows.get(),cols.get())
+  m.CreateMaze(loopPercent=100)
+  #Running Breath First search
+  bfsSearchPath, bfsSearch, bfspath=BFS(m)
+  a=agent(m,footprints=True,color=COLOR.yellow)
+  m.tracePath({a:bfspath}, showMarked=True,delay=100,kill=True)
+
+  #Running Depth First Search
+  dfsSearchPath, dfsSearch, dfspath=DFS(m)
+  b=agent (m, footprints=True, color=COLOR.red) 
+  m.tracePath({b:dfspath}, showMarked=True,delay=100,kill=True)
+
+  #Running A* searching Algo  
+  aSearchPath, aPath,path=aStar(m)
+  c=agent(m,footprints=True, color=COLOR.green)
+  m.tracePath({c:path}, showMarked=True,delay=100,kill=True)
+
+
+  textLabel(m, 'BFS Search ', len(bfsSearchPath)+1)
+  textLabel(m, 'DFS Search ', len(dfsSearchPath)+1)
+  textLabel(m, 'A* Search ', len(aSearchPath)+1)
+  textLabel(m, 'DFS Path ', len(dfsSearch)+1)
+  textLabel(m, 'BFS Path ', len(bfsSearch)+1)
+  textLabel(m, 'A* Path ', len(aPath)+1)
+
+  t1=timeit('DFS' ,number=1000, globals=globals())
+  t2=timeit('BFS' ,number=1000, globals=globals())
+  t3=timeit('aStar' ,number=1000, globals=globals())
+
+  print(t1)
+  textLabel(m, 'DFS Time' ,t1)
+  textLabel(m, 'BFS Time' ,t2)
+  textLabel(m, 'A* Time' ,t3)
+ 
+  m.run()
+
+
+colLabel = Label(tkWindow, 
+        text="MAZE GAME",
+        background = "beige",
+        font=('Times New Roman',30,BOLD)).grid(row=0, column=2)
+#rows entry
+rowLadel = Label(tkWindow, text="No. of rows          ",background = "beige").grid(row=1, column=0)
+try:
+  rows = IntVar()
+  rowEntry = Entry(tkWindow, textvariable=rows,background = "light blue").grid(row=1, column=1)  
+except:
+  rowEntry = Entry(tkWindow, textvariable="Invalid Input ").grid(row=1, column=1)  
+
+#Columns Entry 
+colLabel = Label(tkWindow,text="No. of columns",background = "beige").grid(row=1, column=3)  
+try:
+  cols = IntVar()
+  colEntry = Entry(tkWindow, textvariable=cols,background = "light blue").grid(row=1, column=4)  
+except:
+  colEntry = Entry(tkWindow, textvariable="Invalid Input ").grid(row=1, column=4)  
+
+
+
+v = IntVar()
+
+
+colLabel = Label(tkWindow, 
+        text="Choose a Maze Type:",
+         background = "beige",
+        font=('Times New Roman', )).grid(row=4, column=2)
+
+radio1 = Radiobutton(tkWindow, 
+               text="Perfect Maze",
+               padx = 2, 
+               variable=v, 
+               value=0,
+               background = "light blue").grid(row=8, column=1)
+
+radio2 = Radiobutton(tkWindow, 
+               text="Multiple Path Maze",
+               background = "light blue",
+               variable=v, 
+               value=100).grid(row=8, column=3)
+
+#login button
+loginButton = Button(tkWindow, text="Start Comparing", command=startGame ,background = "grey",).grid(row=9, column=2)  
+
+
+tkWindow.mainloop()
